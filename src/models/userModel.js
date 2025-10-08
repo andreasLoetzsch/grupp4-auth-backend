@@ -5,7 +5,7 @@ const userModel = new Schema({
     username: {type: string, required: true  },
     password: {type: string, required: true},
     email: {type: string, required: true},
-    roel: {type: string},
+    role: {type: string},
     phoneNumber: {type: number} 
 })
 
@@ -15,5 +15,9 @@ userModel.pre("save", async function (next) {
     this.password = await bcrypt.hash(this.password, genSalt);
     next()
 })
+
+userModel.methods.checkPassword = function(password) {
+    return bcrypt.compare(password, this.password)
+}
 
 module.exports = mongoose.model('user', userModel)
