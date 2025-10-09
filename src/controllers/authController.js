@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs')
 const registerUser = async (req, res) => {
     const {username, password, email, role, phoneNumber} = req.body
     try {
+        if(!username || !password || !email || !role || !phoneNumber)res.status(403).json({success: false, message: "All the fields needs to be answered"})
         if(username.length < 3) res.status(403).json({success: false, message: "Username needs to be atleast 3 characters"})
         if(password.length < 8) res.status(403).json({success: false, message: "Password needs to be atleast 8 characters"})
 
@@ -41,4 +42,43 @@ const registerUser = async (req, res) => {
     }
 }
 
-module.exports = {registerUser}
+const loginUser = async (req, res) => {
+    const {username, password} = req.body;
+    try{
+        if(!username || !password)res.status(403).json({success: false, message: "Username and Password required"})
+        const user = await User.findOne({
+            username: { $regex: "^" + username + "$", $options: "i" },
+        });
+        if(!user)res.status(404).json({success: false, message:"User not found"})
+        const passwordCheck = await user.checkPassword(password)
+        if( !passwordCheck)res.status(404).json({success: false, message:"Invalid credentials"})
+        const accessToken = await jwt.sign(
+            {
+                userId: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role
+            }, 
+            process.env.ACCESS_TOKEN_SECRET,
+            {expiresIn: "1h"}
+        )
+        const refreshToken = await jwt.sign(
+            {
+                userId: user.id,
+            }, process.env.REFRESH_TOKEN_SECRET,
+            {expiresIn: "7d"}
+        )
+        res.cookie('refreshToken', refreshToken, {
+            httpsOnly: true, 
+            secure: true, 
+            sameSite: "strict", 
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+        res.status(200).json({success: true, message: "successfully logged in", accessToken})
+    }catch(err){
+        console.error(err.message)
+        res.status(500).json({success: false, message: "Server error"})
+    }
+}
+
+module.exports = {registerUser, loginUser}
