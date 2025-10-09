@@ -1,12 +1,14 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 
+const { Schema } = mongoose;
+
 const userModel = new Schema({
-    username: {type: string, required: true  },
-    password: {type: string, required: true},
-    email: {type: string, required: true},
-    role: {type: string},
-    phoneNumber: {type: number} 
+    username: {type: String, required: true  },
+    password: {type: String, required: true},
+    email: {type: String, required: true},
+    role: {type: String},
+    phoneNumber: {type: Number} 
 })
 
 userModel.pre("save", async function (next) {
