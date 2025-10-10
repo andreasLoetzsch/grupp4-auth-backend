@@ -5,28 +5,28 @@ const bcrypt = require('bcryptjs')
 const registerUser = async (req, res) => {
     const {username, password, email, role, phoneNumber} = req.body
     try {
-        if(!username || !password || !email || !role || !phoneNumber)res.status(403).json({success: false, message: "All the fields needs to be answered"})
-        if(username.length < 3) res.status(403).json({success: false, message: "Username needs to be atleast 3 characters"})
-        if(password.length < 8) res.status(403).json({success: false, message: "Password needs to be atleast 8 characters"})
+        if(!username || !password || !email || !role || !phoneNumber)return res.status(403).json({success: false, message: "All the fields needs to be answered"})
+        if(username.length < 3) return res.status(403).json({success: false, message: "Username needs to be atleast 3 characters"})
+        if(password.length < 8) return res.status(403).json({success: false, message: "Password needs to be atleast 8 characters"})
 
         function isEmailValid (email) {
             const emailCheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
             return emailCheck.test(email)
         }
-        if(!isEmailValid(email)) res.status(403).json({success: false, message: "Email not valid"})
+        if(!isEmailValid(email)) return res.status(403).json({success: false, message: "Email not valid"})
         const isEmailInUse = await User.findOne({
             email: {$regex: "^" + email + "$", $options: "i" }
         })
-        if(isEmailInUse) res.status(403).json({success: false, message: "Email already taken"})
+        if(isEmailInUse) return res.status(403).json({success: false, message: "Email already taken"})
         const isUsernameInUse = await User.findOne({
             username: {$regex: "^" + username + "$", $options: "i" }
         })
-        if(isUsernameInUse) res.status(403).json({success: false, message: "Username already taken"})
+        if(isUsernameInUse) return res.status(403).json({success: false, message: "Username already taken"})
         function isPhoneNumberValid (phoneNumber){
             const phoneNumberCheck = /^(?:\+46|0)(7[\d]{8})$/
             return phoneNumberCheck.test(phoneNumber)
         }
-        if(!isPhoneNumberValid(phoneNumber)) res.status(403).json({success: false, message: "Needs to be a swedish number"})
+        if(!isPhoneNumberValid(phoneNumber)) return res.status(403).json({success: false, message: "Needs to be a swedish number"})
         const user = new User({
             username: username, 
             password: password, 
@@ -45,13 +45,13 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     const {username, password} = req.body;
     try{
-        if(!username || !password)res.status(403).json({success: false, message: "Username and Password required"})
+        if(!username || !password) return res.status(403).json({success: false, message: "Username and Password required"})
         const user = await User.findOne({
             username: { $regex: "^" + username + "$", $options: "i" },
         });
-        if(!user)res.status(404).json({success: false, message:"User not found"})
+        if(!user) return res.status(404).json({success: false, message:"User not found"})
         const passwordCheck = await user.checkPassword(password)
-        if( !passwordCheck)res.status(404).json({success: false, message:"Invalid credentials"})
+        if( !passwordCheck) return res.status(404).json({success: false, message:"Invalid credentials"})
         const accessToken = await jwt.sign(
             {
                 userId: user.id,
