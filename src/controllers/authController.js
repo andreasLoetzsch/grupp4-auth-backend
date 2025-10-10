@@ -81,4 +81,25 @@ const loginUser = async (req, res) => {
     }
 }
 
+const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if(!id) {
+            return res.status(400).json({ success: false, message: "No user ID present in query parameters."});
+        }
+
+        const user = await User.findOneAndDelete({ _id: id });
+
+        if(!user) {
+            return res.status(404).json({ success: false, message: "Provided user ID does not exist."});
+        }
+
+        return res.status(200).json({ success: true, message: "User was deleted successfully."});
+    } catch(error) {
+        console.error(error.message);
+        return res.status(500).json({ success: false, message: "Server error."});
+    }
+}
+
 module.exports = {registerUser, loginUser}
