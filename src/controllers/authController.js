@@ -81,6 +81,20 @@ const loginUser = async (req, res) => {
     }
 }
 
+const logoutUser = (req, res) => {
+  try {
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
+    return res.status(200).json({ success: true, message: "User logged out" });
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -102,4 +116,4 @@ const deleteUser = async (req, res) => {
     }
 }
 
-module.exports = {registerUser, loginUser, deleteUser}
+module.exports = {registerUser, loginUser, logoutUser, deleteUser}
