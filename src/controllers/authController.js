@@ -121,8 +121,12 @@ const updateUser = async (req, res) => {
             return res.status(400).json({ success: false, message: "Password must be more than 8 characters long." });
         }
 
-        if(updates.phoneNumber && isNaN(updates.phoneNumber)) {
+        if(updates.phoneNumber && !(/^(?:\+46|0)\s*(?:7\d{8}|[1-9]\d{5,8})$/.test(updates.phoneNumber))) {
             return res.status(400).json({ success: false, message: "Invalid phone number format." });
+        }
+
+        if(updates.email && !(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updates.email))) {
+            return res.status(400).json({ success: false, message: "Invalid email format." });
         }
         
         const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true });
