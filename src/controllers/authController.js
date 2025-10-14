@@ -1,6 +1,7 @@
 const User = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const { isValidObjectId } = require('mongoose')
 
 const registerUser = async (req, res) => {
     const { username, password, email, role, phoneNumber } = req.body || {}
@@ -106,11 +107,20 @@ const updateUser = async (req, res) => {
     try {
         const { id } = req.params || {};
 
-        if (!id) {
+        if(!id) {
             return res.status(400).json({ success: false, message: "No user ID present in query parameters." });
         }
 
+        if(!isValidObjectId(id)) {
+            return res.status(400).json({ success: false, message: "Invalid user ID format." });
+        }
+
         const updates = req.body;
+
+        if(updates.password.length < 9) {
+            return res.status(400).json({ success: false, message: "Password must be more than 8 characters long." });
+        }
+        
         const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true });
 
         if (!updatedUser) {
