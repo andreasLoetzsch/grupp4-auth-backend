@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 
 const registerUser = async (req, res) => {
-    const { username, password, email, role, phoneNumber } = req.body
+    const { username, password, email, role, phoneNumber } = req.body || {}
     try {
         if (!username || !password || !email || !role || !phoneNumber) return res.status(403).json({ success: false, message: "All the fields needs to be answered" })
         if (username.length < 3) return res.status(403).json({ success: false, message: "Username needs to be atleast 3 characters" })
@@ -43,7 +43,8 @@ const registerUser = async (req, res) => {
 }
 
 const loginUser = async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password } = req.body || {};
+
     try {
         if (!username || !password) return res.status(403).json({ success: false, message: "Username and Password required" })
         const user = await User.findOne({
@@ -103,7 +104,7 @@ const logoutUser = (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params || {};
 
         if (!id) {
             return res.status(400).json({ success: false, message: "No user ID present in query parameters." });
@@ -125,7 +126,7 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params || {};
 
         if (!id) {
             return res.status(400).json({ success: false, message: "No user ID present in query parameters." });
