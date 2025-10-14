@@ -68,13 +68,19 @@ const loginUser = async (req, res) => {
             }, process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" }
         )
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameStie: "strict",
+            maxAge: 60 * 60 * 1000
+        })
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: true,
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
-        res.status(200).json({ success: true, message: "successfully logged in", accessToken })
+        res.status(200).json({ success: true, message: "successfully logged in" })
     } catch (err) {
         console.error(err.message)
         res.status(500).json({ success: false, message: "Server error" })
