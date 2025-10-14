@@ -22,6 +22,7 @@ npm install
 3. Skapa `.env`:
 ```
 PORT=3001
+NODE_ENV="development"
 DB_CONNECTION_STRING="mongodb+srv://<användarnamn>:<lösenord>@cluster.mongodb.net/databasnamn"
 ACCESS_TOKEN_SECRET=<valfritt hemligt värde för access-token>
 REFRESH_TOKEN_SECRET=<valfritt hemligt värde för refresh-token>
