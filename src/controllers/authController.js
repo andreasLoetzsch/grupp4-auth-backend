@@ -35,10 +35,10 @@ const registerUser = async (req, res) => {
             phoneNumber: phoneNumber
         })
         await user.save()
-        res.status(200).json({ success: true, message: "User successfully created" })
+        return res.status(200).json({ success: true, message: "User successfully created" })
     } catch (err) {
         console.error(err.message);
-        res.status(500).send("Server error");
+        return res.status(500).send("Server error");
     }
 }
 
@@ -81,10 +81,10 @@ const loginUser = async (req, res) => {
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
-        res.status(200).json({ success: true, message: "successfully logged in" })
+        return res.status(200).json({ success: true, message: "successfully logged in" })
     } catch (err) {
         console.error(err.message)
-        res.status(500).json({ success: false, message: "Server error" })
+        return res.status(500).json({ success: false, message: "Server error" })
     }
 }
 
