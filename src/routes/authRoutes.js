@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { registerUser, loginUser, logoutUser, updateUser, deleteUser } = require('../controllers/authController');
+const {recaptchaCheck} = require('../middleware/recaptchaCheck.js')
 const crypto = require('crypto');
 
 function createCsrfToken() {
@@ -23,8 +24,8 @@ router.get('/csrf', (req, res) => {
     return res.status(200).json({ ok: true, csrfToken: token });
 });
 
-router.post('/register', registerUser);
-router.post('/login', loginUser);
+router.post('/register', recaptchaCheck, registerUser);
+router.post('/login', recaptchaCheck, loginUser);
 router.post('/logout', logoutUser);
 router.patch('/:id', updateUser);
 router.delete('/:id', deleteUser);
