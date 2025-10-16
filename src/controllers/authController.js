@@ -72,14 +72,14 @@ const loginUser = async (req, res) => {
         )
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            secure: process.env.NODE_ENV !== "development",
+            sameSite: process.env.NODE_ENV === "development" ? "lax" : "strict",
             maxAge: 60 * 60 * 1000
         })
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            secure: process.env.NODE_ENV !== "development",
+            sameSite: process.env.NODE_ENV === "development" ? "lax" : "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
         return res.status(200).json({ success: true, message: "successfully logged in" })
