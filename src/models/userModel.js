@@ -12,11 +12,28 @@ const userSchema = new Schema({
 })
 
 userSchema.pre("save", async function (next) {
-    if(!this.isModified("password"))return next();
+    if(!this.isModified("password")) return next();
+
     const genSalt = await bcrypt.genSalt(10);
+
     this.password = await bcrypt.hash(this.password, genSalt);
-    next()
-})
+
+    next();
+});
+
+userSchema.pre("findOneAndUpdate", async function (next) {
+    const updated = this.getUpdate();
+
+    if(!updated.password) return next();
+
+    const genSalt = await bcrypt.genSalt(10);
+
+    updated.password = await bcrypt.hash(updated.password, genSalt);
+
+    this.setUpdate(updated);
+
+    next();
+});
 
 userSchema.methods.checkPassword = function(password) {
     return bcrypt.compare(password, this.password)
