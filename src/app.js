@@ -8,7 +8,6 @@ const swaggerSpec = require('./config/swagger');
 const bodyParser = require('body-parser');
 const csrfProtection = require('./middleware/csrf');
 
-
 const app = express()
 
 app.use(helmet());

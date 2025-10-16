@@ -20,7 +20,7 @@ function csrfCookieOptions() {
 router.get('/csrf', (req, res) => {
     const token = createCsrfToken();
     res.cookie('csrfToken', token, csrfCookieOptions());
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true, csrfToken: token });
 });
 
 router.post('/register', registerUser);

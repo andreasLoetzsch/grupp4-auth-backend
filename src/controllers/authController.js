@@ -23,9 +23,9 @@ function csrfCookieOptions() {
 // ------------------------------------------------------------------------------
 
 const registerUser = async (req, res) => {
-    const { username, password, email, role, phoneNumber } = req.body || {}
+    const { username, password, email, phoneNumber } = req.body || {}
     try {
-        if (!username || !password || !email || !role || !phoneNumber) return res.status(403).json({ success: false, message: "All the fields needs to be answered" })
+        if (!username || !password || !email || !phoneNumber) return res.status(403).json({ success: false, message: "All the fields needs to be answered" })
         if (username.length < 3) return res.status(403).json({ success: false, message: "Username needs to be atleast 3 characters" })
         if (password.length < 8) return res.status(403).json({ success: false, message: "Password needs to be atleast 8 characters" })
 
@@ -51,7 +51,7 @@ const registerUser = async (req, res) => {
             username: username,
             password: password,
             email: email,
-            role: role,
+            role: "user",
             phoneNumber: phoneNumber
         })
         await user.save()
