@@ -6,13 +6,9 @@ const { registerUser, loginUser, logoutUser, updateUser, deleteUser } = require(
 const authRouter = express.Router()
 
 authRouter.post('/register', registerUser)
-
 authRouter.post('/login', recaptchaCheck, loginUser)
-
-
 authRouter.post("/logout", logoutUser)
 authRouter.patch('/update/:id', updateUser)
-
 authRouter.delete('/delete', deleteUser)
 
 module.exports = authRouter

@@ -2,13 +2,14 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export async function verifyRecaptcha(recaptchaToken, action) {
-  const secret = SECRET_RECAPTCHA_SERVER_KEY;
+  const secret = process.env.SECRET_RECAPTCHA_SERVER_KEY;
   if (!secret) throw new Error("RECAPTCHA_SECRET_KEY not set");
 
   const params = new URLSearchParams();
+
   params.append("secret", secret);
   params.append("response", recaptchaToken);
-
+  
   const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
     method: "POST",
     body: params,

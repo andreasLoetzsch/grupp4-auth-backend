@@ -1,17 +1,17 @@
 import { verifyRecaptcha } from "../services/recaptchaService.js"
 
 export const recaptchaCheck = async (req, res, next) => {
-    const {recaptchaToken} = req.body
+    const {token} = req.body
     try {
-        if (!recaptchaToken) {
-            R.forbidden(res, "Captcha token missing");
+        if (!token) {
+            res.status(401).json({ success: false, message:"Captcha token missing"});
             return
         }
         const action = req.path.replace("/", "");
-        const captcha = await verifyRecaptcha(recaptchaToken, action)
-
+        const captcha = await verifyRecaptcha(token, action)
+        console.log(captcha)
         if(!captcha.success && (captcha.score ?? 0) > 0.5){
-            R.forbidden(res, "captcha failed");
+            res.status(401).json({ success: false, message: "Captcha failed"});
             return;
         }
         next()
