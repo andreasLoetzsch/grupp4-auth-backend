@@ -6,6 +6,8 @@ const cors = require("cors");
 const swaggerUi = require('swagger-ui-express')
 const swaggerSpec = require('./config/swagger');
 const bodyParser = require('body-parser');
+const csrfProtection = require('./middleware/csrf');
+
 
 const app = express()
 
@@ -17,9 +19,9 @@ app.use(cookieParser());
 
 app.use((req, res, next) => {
   const sanitize = (obj) => {
-    if(obj && typeof obj == "object") {
-      for(const key in obj) {
-        if(key.startsWith("$") || key.includes(".")) {
+    if (obj && typeof obj == "object") {
+      for (const key in obj) {
+        if (key.startsWith("$") || key.includes(".")) {
           delete obj[key];
         } else {
           sanitize(obj[key]);
@@ -38,6 +40,19 @@ app.use(cors({
   origin: "http://localhost:5173",
   credentials: true,
 }));
+
+app.use((req, res, next) => {
+  const prev = res.getHeader('Access-Control-Allow-Headers');
+  const base = prev ? String(prev) : 'Content-Type';
+  res.header('Access-Control-Allow-Headers', `${base}, X-CSRF-Token`);
+  next();
+});
+
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api-docs')) return next();
+  return csrfProtection(req, res, next);
+});
 
 app.use('/auth', authRouter)
 
