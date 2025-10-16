@@ -1,5 +1,5 @@
 const express = require('express')
-const {recaptchaCheck} = require('../middlewear/recaptchaCheck')
+const { recaptchaCheck } = require('../middleware/recaptchaCheck')
 
 const { registerUser, loginUser, logoutUser, updateUser, deleteUser } = require('../controllers/authController')
 
