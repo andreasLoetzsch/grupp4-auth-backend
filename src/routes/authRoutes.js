@@ -1,14 +1,32 @@
-const express = require('express')
-const { recaptchaCheck } = require('../middleware/recaptchaCheck')
+const express = require('express');
+const router = express.Router();
+const { registerUser, loginUser, logoutUser, updateUser, deleteUser } = require('../controllers/authController');
+const crypto = require('crypto');
 
-const { registerUser, loginUser, logoutUser, updateUser, deleteUser } = require('../controllers/authController')
+function createCsrfToken() {
+    return crypto.randomBytes(32).toString('base64url');
+}
+function csrfCookieOptions() {
+    const isDev = process.env.NODE_ENV === 'development';
+    return {
+        httpOnly: false,
+        secure: !isDev,
+        sameSite: isDev ? 'lax' : 'strict',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+    };
+}
 
-const authRouter = express.Router()
+router.get('/csrf', (req, res) => {
+    const token = createCsrfToken();
+    res.cookie('csrfToken', token, csrfCookieOptions());
+    return res.status(200).json({ ok: true });
+});
 
-authRouter.post('/register', recaptchaCheck, registerUser)
-authRouter.post('/login', recaptchaCheck, loginUser)
-authRouter.post("/logout", logoutUser)
-authRouter.patch('/update/:id', updateUser)
-authRouter.delete('/delete', deleteUser)
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+router.post('/logout', logoutUser);
+router.patch('/:id', updateUser);
+router.delete('/:id', deleteUser);
 
-module.exports = authRouter
+module.exports = router;
