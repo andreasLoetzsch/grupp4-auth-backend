@@ -1,8 +1,7 @@
-import dotenv from 'dotenv';
-dotenv.config();
+const config = require('./config');
 
 export async function verifyRecaptcha(recaptchaToken, action) {
-  const secret = process.env.SECRET_RECAPTCHA_SERVER_KEY;
+  const secret = config.SECRET_RECAPTCHA_SERVER_KEY;
   if (!secret) throw new Error("RECAPTCHA_SECRET_KEY not set");
 
   const params = new URLSearchParams();

@@ -2,6 +2,7 @@ const User = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const { isValidObjectId } = require('mongoose')
+const config = require('./config');
 
 // ------------------------------------------------------------------------------
 const crypto = require('crypto');
@@ -11,11 +12,10 @@ function createCsrfToken() {
 }
 
 function csrfCookieOptions() {
-    const isDev = process.env.NODE_ENV === 'development';
     return {
-        httpOnly: false,
-        secure: !isDev,
-        sameSite: isDev ? 'lax' : 'strict',
+        httpOnly: config.HTTP_ONLY,
+        secure: config.SECURE,
+        sameSite: config.SAME_SITE,
         path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dagar
     };
@@ -80,25 +80,25 @@ const loginUser = async (req, res) => {
                 email: user.email,
                 role: user.role
             },
-            process.env.ACCESS_TOKEN_SECRET,
+            config.ACCESS_TOKEN_SECRET,
             { expiresIn: "1h" }
         )
         const refreshToken = await jwt.sign(
             {
                 userId: user.id,
-            }, process.env.REFRESH_TOKEN_SECRET,
+            }, config.REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" }
         )
         res.cookie('accessToken', accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV !== "development",
-            sameSite: process.env.NODE_ENV === "development" ? "lax" : "strict",
+            httpOnly: config.HTTP_ONLY,
+            secure: config.SECURE,
+            sameSite: config.SAME_SITE,
             maxAge: 60 * 60 * 1000
         })
         res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV !== "development",
-            sameSite: process.env.NODE_ENV === "development" ? "lax" : "strict",
+            httpOnly: config.HTTP_ONLY,
+            secure: config.SECURE,
+            sameSite: config.SAME_SITE,
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
@@ -114,8 +114,7 @@ const loginUser = async (req, res) => {
 
 const logoutUser = (req, res) => {
     try {
-        const isDev = process.env.NODE_ENV === 'development';
-        const common = { path: '/', secure: !isDev, sameSite: isDev ? 'lax' : 'strict' };
+        const common = { path: '/', secure: config.SECURE, sameSite: config.SAME_SITE };
 
         res.clearCookie('refreshToken', { ...common, httpOnly: true });
         res.clearCookie('accessToken', { ...common, httpOnly: true });

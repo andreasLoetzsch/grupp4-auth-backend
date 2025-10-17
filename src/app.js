@@ -10,6 +10,11 @@ const csrfProtection = require('./middleware/csrf');
 
 const app = express()
 
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
+
 app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -34,11 +39,6 @@ app.use((req, res, next) => {
   sanitize(req.params);
   next();
 });
-
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-}));
 
 app.use((req, res, next) => {
   const prev = res.getHeader('Access-Control-Allow-Headers');
