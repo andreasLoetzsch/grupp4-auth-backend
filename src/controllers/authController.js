@@ -2,7 +2,7 @@ const User = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const { isValidObjectId } = require('mongoose')
-const config = require('./config');
+const config = require('../config');
 
 // ------------------------------------------------------------------------------
 const crypto = require('crypto');

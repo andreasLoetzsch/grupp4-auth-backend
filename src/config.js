@@ -6,7 +6,8 @@ const DEFAULT_HOST = process.env.HOST || '0.0.0.0';
 let DEFAULT_SECURE = true;
 let DEFAULT_HTTP_ONLY = true;
 let DEFAULT_SAME_SITE = "strict";
-let DEFAULT_CORS_ALLOWED_ORIGINS = ['http://localhost:3000']
+let DEFAULT_CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:5173']
+let ALLOW_EMPTY_ORIGIN = false;
 
 //Initialize secrets as undefined
 let DEFAULT_ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET
@@ -17,10 +18,11 @@ if (process.env.NODE_ENV === 'development') {
   DEFAULT_ACCESS_TOKEN_SECRET = DEFAULT_ACCESS_TOKEN_SECRET || "J2Adgc7PqyMT6qB+KxhlTYpyRHqp4gI7C8WDkbEVve9HJ4UFtE8DW91dg0Px1EBu";
   DEFAULT_REFRESH_TOKEN_SECRET = DEFAULT_REFRESH_TOKEN_SECRET || "sWFEpzloPT5tO4mL/jOzY5hoQd3V5I1r7uxu3faJhbilTw7WDI5pEEgPDoh2DvjS";
   DEFAULT_SECURE = false;
-  DEFAULT_SAME_SITE = process.env.SAME_SITE || 'None';
+  DEFAULT_SAME_SITE = process.env.SAME_SITE || 'Lax';
   DEFAULT_CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS
     ? process.env.CORS_ALLOWED_ORIGINS.split(',')
     : DEFAULT_CORS_ALLOWED_ORIGINS;
+  ALLOW_EMPTY_ORIGIN = true;
 }
 
 //Enforce secrets presence
@@ -57,6 +59,7 @@ module.exports = {
   SAME_SITE,
   SAME_SITE_TYPES,
   CORS_ALLOWED_ORIGINS,
+  ALLOW_EMPTY_ORIGIN,
   DB_CONNECTION_STRING,
   SECRET_RECAPTCHA_SERVER_KEY
 }

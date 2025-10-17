@@ -1,6 +1,6 @@
-import { verifyRecaptcha } from "../services/recaptchaService.js"
+const { verifyRecaptcha } = require("../services/recaptchaService.js")
 
-export const recaptchaCheck = async (req, res, next) => {
+const recaptchaCheck = async (req, res, next) => {
     const {token} = req.body
     try {
         if (!token) {
@@ -21,3 +21,5 @@ export const recaptchaCheck = async (req, res, next) => {
     }
     
 }
+
+module.exports = { recaptchaCheck };

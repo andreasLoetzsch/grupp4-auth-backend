@@ -7,13 +7,24 @@ const swaggerUi = require('swagger-ui-express')
 const swaggerSpec = require('./config/swagger');
 const bodyParser = require('body-parser');
 const csrfProtection = require('./middleware/csrf');
+const config = require('./config.js');
 
 const app = express()
 
-app.use(cors({
-  origin: "http://localhost:5173",
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin && config.ALLOW_EMPTY_ORIGIN) {
+      callback(null, true); // tillåt tom origin i dev
+    } else if (origin && config.CORS_ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true); // tillåt konfigurerade origins
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
 
 app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
