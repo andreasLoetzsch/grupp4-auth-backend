@@ -168,13 +168,19 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const { id } = req.params || {};
+        const userId = req.params.id;
+        const requesterId = req.user.id;
+        const isAdmin = req.user.role === 'admin';
 
-        if (!id) {
+        if (!userId) {
             return res.status(400).json({ success: false, message: "No user ID present in query parameters." });
         }
 
-        const user = await User.findOneAndDelete({ _id: id });
+        if (requesterId === userId && !isAdmin) {
+            return res.status(403).json({ success: false, message: "Not authorized." });
+        }
+
+        const user = await User.findOneAndDelete({ _id: userId });
 
         if (!user) {
             return res.status(404).json({ success: false, message: "Provided user ID does not exist." });
