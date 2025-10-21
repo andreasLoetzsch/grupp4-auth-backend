@@ -105,7 +105,7 @@ const loginUser = async (req, res) => {
         const csrfToken = createCsrfToken();
         res.cookie('csrfToken', csrfToken, csrfCookieOptions());
 
-        return res.status(200).json({ success: true, message: "successfully logged in" })
+        return res.status(200).json({ success: true, message: "successfully logged in", data: { id: user.id } })
     } catch (err) {
         console.error(err.message)
         return res.status(500).json({ success: false, message: "Server error" })
