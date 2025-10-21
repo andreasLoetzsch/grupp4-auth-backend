@@ -19,9 +19,14 @@ function csrfCookieOptions() {
 }
 
 router.get('/csrf', (req, res) => {
-    const token = createCsrfToken();
+  let token = req.cookies?.csrfToken;
+
+  if (!token) {
+    token = createCsrfToken(); // your existing generator function
     res.cookie('csrfToken', token, csrfCookieOptions());
-    return res.status(200).json({ ok: true, csrfToken: token });
+  }
+
+  return res.status(200).json({ ok: true, csrfToken: token });
 });
 
 router.post('/register', recaptchaCheck, registerUser);

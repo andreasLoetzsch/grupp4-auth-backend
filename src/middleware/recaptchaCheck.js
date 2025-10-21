@@ -1,6 +1,10 @@
-const { verifyRecaptcha } = require("../services/recaptchaService.js")
+const { verifyRecaptcha } = require("../services/recaptchaService.js");
+
+require('dotenv').config();
 
 const recaptchaCheck = async (req, res, next) => {
+    if(process.env.NODE_ENV == "development") return next();
+
     const {token} = req.body
     try {
         if (!token) {
