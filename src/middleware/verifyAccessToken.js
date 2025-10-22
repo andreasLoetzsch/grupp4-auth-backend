@@ -9,7 +9,7 @@ const verifyAccessToken = (req, res, next) => {
   try {
     const decoded = jwt.verify(accessToken, config.ACCESS_TOKEN_SECRET);
     req.user = {
-      id: decoded.id,
+      id: decoded.userId,
       role: decoded.role,
       username: decoded.username,
       email: decoded.email

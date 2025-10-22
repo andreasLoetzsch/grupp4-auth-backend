@@ -193,4 +193,17 @@ const deleteUser = async (req, res) => {
     }
 }
 
-module.exports = { registerUser, loginUser, logoutUser, updateUser, deleteUser }
+const verifyAuth = async (req, res) => {
+    console.log(req.user)
+    try {
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: "User is not authenticated" });
+        }
+        return res.status(200).json({ success: true, message: "User is authenticated", user: { id: req.user.id } });
+    } catch (err) {
+        console.error(err.message);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+module.exports = { registerUser, loginUser, logoutUser, updateUser, deleteUser, verifyAuth };
