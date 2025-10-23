@@ -27,6 +27,9 @@ DB_CONNECTION_STRING="mongodb+srv://<användarnamn>:<lösenord>@cluster.mongodb.
 ACCESS_TOKEN_SECRET=<valfritt hemligt värde för access-token>
 REFRESH_TOKEN_SECRET=<valfritt hemligt värde för refresh-token>
 SECRET_RECAPTCHA_SERVER_KEY= server key
+REDIS_URL=redis://127.0.0.1:6379
+REDIS_TLS=false
+REDIS_TTL_MINUTES=15
 ```
 
 ## Starta Storybook
