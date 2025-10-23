@@ -35,14 +35,14 @@ router.get('/csrf/refresh', async (req, res) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
-      return res.status(401).json({ error: "refresh_missing" });
+      return res.status(401).json({ error: "Refresh token is missing." });
     }
 
     let payload;
     try {
-      payload = jwt.verify(refreshToken, config.ACCESS_TOKEN_SECRET);
+      payload = jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET);
     } catch(e) {
-      return res.status(401).json({ error: "refresh_invalid" });
+      return res.status(401).json({ error: "Refresh token invalid or expired." });
     }
 
     const newAccessToken = await jwt.sign(
@@ -83,7 +83,7 @@ router.get('/csrf/refresh', async (req, res) => {
     return res.status(200).json({ ok: true, csrfToken });
   } catch (err) {
     console.error("refresh error:", err);
-    return res.status(401).json({ error: "refresh_failed" });
+    return res.status(401).json({ error: "Failed to frefresh CSRF token." });
   }
 });
 
