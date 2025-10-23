@@ -4,7 +4,6 @@ const { registerUser, loginUser, logoutUser, updateUser, deleteUser, verifyAuth 
 const {recaptchaCheck} = require('../middleware/recaptchaCheck.js')
 const crypto = require('crypto');
 const config = require('../config');
-const verifyAccessToken = require('../middleware/verifyAccessToken');
 
 function createCsrfToken() {
     return crypto.randomBytes(32).toString('base64url');
@@ -34,7 +33,7 @@ router.post('/register', recaptchaCheck, registerUser);
 router.post('/login', recaptchaCheck, loginUser);
 router.post('/logout', logoutUser);
 router.patch('/:id', updateUser);
-router.delete('/:id', verifyAccessToken, deleteUser);
-router.get('/verify', verifyAccessToken, verifyAuth);
+router.delete('/:id', deleteUser);
+router.get('/verify', verifyAuth);
 
 module.exports = router;

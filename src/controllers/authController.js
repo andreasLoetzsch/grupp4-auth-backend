@@ -10,16 +10,6 @@ const crypto = require('crypto');
 function createCsrfToken() {
     return crypto.randomBytes(32).toString('base64url');
 }
-
-function csrfCookieOptions() {
-    return {
-        httpOnly: config.HTTP_ONLY,
-        secure: config.SECURE,
-        sameSite: config.SAME_SITE,
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dagar
-    };
-}
 // ------------------------------------------------------------------------------
 
 const registerUser = async (req, res) => {
@@ -103,9 +93,8 @@ const loginUser = async (req, res) => {
         })
 
         const csrfToken = createCsrfToken();
-        res.cookie('csrfToken', csrfToken, csrfCookieOptions());
 
-        return res.status(200).json({ success: true, message: "successfully logged in", data: { id: user.id } })
+        return res.status(200).json({ success: true, message: "successfully logged in", data: { id: user.id, csrfToken: csrfToken } })
     } catch (err) {
         console.error(err.message)
         return res.status(500).json({ success: false, message: "Server error" })
