@@ -58,7 +58,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use((req, res, next) => {
   if (req.path.startsWith('/api-docs')) return next();
   return csrfProtection(req, res, next);

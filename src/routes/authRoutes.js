@@ -7,9 +7,6 @@ const config = require('../config');
 const jwt = require("jsonwebtoken");
 const { createCsrf } = require('../csrf.js');
 
-function createCsrfToken() {
-    return crypto.randomBytes(32).toString('base64url');
-}
 function csrfCookieOptions() {
     return {
         httpOnly: config.HTTP_ONLY,
@@ -24,7 +21,7 @@ router.get('/csrf', (req, res) => {
   let token = req.cookies?.csrfToken;
 
   if (!token) {
-    token = createCsrfToken(); // your existing generator function
+    token = createCsrf(); // your existing generator function
     res.cookie('csrfToken', token, csrfCookieOptions());
   }
 

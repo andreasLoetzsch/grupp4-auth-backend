@@ -25,7 +25,6 @@ async function shutdownRedis() {
   if (redisServer.isOpen) await redisServer.quit();
 }
 
-
 module.exports = {
     redisServer,
     initRedis,

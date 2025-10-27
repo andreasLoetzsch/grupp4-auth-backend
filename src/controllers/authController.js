@@ -6,10 +6,7 @@ const config = require('../config');
 
 // ------------------------------------------------------------------------------
 const crypto = require('crypto');
-
-function createCsrfToken() {
-    return crypto.randomBytes(32).toString('base64url');
-}
+const { createCsrf } = require('../csrf');
 // ------------------------------------------------------------------------------
 
 const registerUser = async (req, res) => {
@@ -92,7 +89,7 @@ const loginUser = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
-        const csrfToken = createCsrfToken();
+        const csrfToken = createCsrf();
 
         return res.status(200).json({ success: true, message: "successfully logged in", data: { id: user.id, csrfToken: csrfToken } })
     } catch (err) {
