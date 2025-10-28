@@ -9,8 +9,9 @@ const DEFAULT_REDIS_TTL_MINUTES = process.env.REDIS_TTL_MINUTES || 15;
 let DEFAULT_SECURE = true;
 let DEFAULT_HTTP_ONLY = true;
 let DEFAULT_SAME_SITE = "strict";
-let DEFAULT_CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:5173']
+let DEFAULT_CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:6006']
 let ALLOW_EMPTY_ORIGIN = false;
+let DEFAULT_CORS_ENABLED = true;
 
 //Initialize secrets as undefined
 let DEFAULT_ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV === 'development') {
     ? process.env.CORS_ALLOWED_ORIGINS.split(',')
     : DEFAULT_CORS_ALLOWED_ORIGINS;
   ALLOW_EMPTY_ORIGIN = true;
+  DEFAULT_CORS_ENABLED = true;
 }
 
 //Enforce secrets presence
@@ -46,6 +48,7 @@ const CORS_ALLOWED_ORIGINS = DEFAULT_CORS_ALLOWED_ORIGINS;
 const REDIS_URL = DEFAULT_REDIS_URL;
 const REDIS_TLS = DEFAULT_REDIS_TLS;
 const REDIS_TTL_MINUTES = DEFAULT_REDIS_TTL_MINUTES;
+const CORS_ENABLED = DEFAULT_CORS_ENABLED;
 
 //Add DB and ReCAPTCHA
 const DB_CONNECTION_STRING = process.env.DB_CONNECTION_STRING;
@@ -70,5 +73,6 @@ module.exports = {
   SECRET_RECAPTCHA_SERVER_KEY,
   REDIS_URL,
   REDIS_TLS,
-  REDIS_TTL_MINUTES
+  REDIS_TTL_MINUTES,
+  CORS_ENABLED
 }

@@ -9,7 +9,33 @@ const bodyParser = require('body-parser');
 const csrfProtection = require('./middleware/csrf');
 const config = require('./config.js');
 
+const session = require('express-session');
+const { RedisStore } = require('connect-redis'); // ← named export in v9
+const { createClient } = require('redis');
+
+
 const app = express()
+
+// Create & connect redis v5+ client
+const redisClient = createClient({ url: 'redis://localhost:6379' });
+redisClient.connect().catch(console.error);
+
+app.use(
+  session({
+    name: 'sid',
+    store: new RedisStore({ client: redisClient, ttl: 60 * 60 }), // 1 hour TTL
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 1000 * 60 * 60,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    },
+    rolling: true,
+  })
+);
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -24,7 +50,11 @@ const corsOptions = {
   credentials: true,
 };
 
-app.use(cors(corsOptions));
+if(config.CORS_ENABLED) {
+  app.use(cors(corsOptions));
+} else {
+  app.use(cors());
+}
 
 app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));

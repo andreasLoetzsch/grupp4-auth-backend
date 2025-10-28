@@ -91,6 +91,18 @@ const loginUser = async (req, res) => {
 
         const csrfToken = createCsrf();
 
+        // Wrap regenerate in a promise for await
+        await new Promise((resolve, reject) => {
+            req.session.regenerate(err => (err ? reject(err) : resolve()));
+        });
+
+        req.session.userId = user._id;
+
+        // Optionally persist before responding (usually not required, but safe)
+        await new Promise((resolve, reject) => {
+            req.session.save(err => (err ? reject(err) : resolve()));
+        });
+
         return res.status(200).json({ success: true, message: "successfully logged in", data: { id: user.id, csrfToken: csrfToken } })
     } catch (err) {
         console.error(err.message)
@@ -98,13 +110,37 @@ const loginUser = async (req, res) => {
     }
 }
 
-const logoutUser = (req, res) => {
+const logoutUser = async (req, res) => {
     try {
         const common = { path: '/', secure: config.SECURE, sameSite: config.SAME_SITE };
 
         res.clearCookie('refreshToken', { ...common, httpOnly: true });
         res.clearCookie('accessToken', { ...common, httpOnly: true });
         res.clearCookie('csrfToken', { ...common });
+
+        if (!req.session) {
+            res.clearCookie('sid', {
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: process.env.NODE_ENV === 'production',
+                path: '/', // match your cookie path
+            });
+
+            return res.json({ ok: true });
+        }
+
+        // Destroy session
+        await new Promise((resolve, reject) => {
+            req.session.destroy(err => (err ? reject(err) : resolve()));
+        });
+
+        // Clear cookie AFTER destroy
+        res.clearCookie('sid', {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            path: '/', // must match how it was set
+        });
 
         return res.status(200).json({ success: true, message: "User logged out" });
     } catch (err) {
@@ -179,17 +215,21 @@ const deleteUser = async (req, res) => {
     }
 }
 
-const verifyAuth = async (req, res) => {
-    console.log(req.user)
-    try {
-        if (!req.user) {
-            return res.status(401).json({ success: false, message: "User is not authenticated" });
-        }
-        return res.status(200).json({ success: true, message: "User is authenticated", user: { id: req.user.id } });
-    } catch (err) {
-        console.error(err.message);
-        return res.status(500).json({ success: false, message: "Server error" });
+const verifyUser = async (req, res) => {
+    const user = User.findById(req.session.userId);
+    
+    if(!user) {
+        return res.status(401).json({ success: true, message: "User invalid." });
     }
-};
 
-module.exports = { registerUser, loginUser, logoutUser, updateUser, deleteUser, verifyAuth };
+    return res.status(200).json({ 
+        success: true, 
+        message: "User is authenticated.", 
+        user: {
+            id: user._id,
+            username: user.username
+        } 
+    });
+}
+
+module.exports = { registerUser, loginUser, logoutUser, updateUser, deleteUser, verifyUser };

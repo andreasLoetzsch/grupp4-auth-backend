@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, logoutUser, updateUser, deleteUser, verifyAuth } = require('../controllers/authController');
+const { registerUser, loginUser, logoutUser, updateUser, deleteUser, verifyUser } = require('../controllers/authController');
 const {recaptchaCheck} = require('../middleware/recaptchaCheck.js')
 const crypto = require('crypto');
 const config = require('../config');
 const jwt = require("jsonwebtoken");
 const { createCsrf } = require('../csrf.js');
+const verifyAuth = require('../middleware/verifyAuth.js');
 
 function csrfCookieOptions() {
     return {
@@ -89,6 +90,6 @@ router.post('/login', recaptchaCheck, loginUser);
 router.post('/logout', logoutUser);
 router.patch('/:id', updateUser);
 router.delete('/:id', deleteUser);
-router.get('/verify', verifyAuth);
+router.get('/verify', verifyAuth, verifyUser);
 
 module.exports = router;
