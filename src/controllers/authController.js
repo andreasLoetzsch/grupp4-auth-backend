@@ -180,7 +180,6 @@ const deleteUser = async (req, res) => {
 }
 
 const verifyAuth = async (req, res) => {
-    console.log(req.user)
     try {
         if (!req.user) {
             return res.status(401).json({ success: false, message: "User is not authenticated" });
