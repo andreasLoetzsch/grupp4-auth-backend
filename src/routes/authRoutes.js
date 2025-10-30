@@ -6,7 +6,6 @@ const crypto = require('crypto');
 const config = require('../config');
 const jwt = require("jsonwebtoken");
 const { createCsrf } = require('../csrf.js');
-const verifyAuth = require('../middleware/verifyAuth.js');
 
 function csrfCookieOptions() {
     return {
@@ -90,6 +89,6 @@ router.post('/login', recaptchaCheck, loginUser);
 router.post('/logout', logoutUser);
 router.patch('/:id', updateUser);
 router.delete('/:id', deleteUser);
-router.get('/verify', verifyAuth, verifyUser);
+router.get('/verify', verifyUser);
 
 module.exports = router;
