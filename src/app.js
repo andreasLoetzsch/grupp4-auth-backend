@@ -24,7 +24,7 @@ app.use(
   session({
     name: 'sid',
     store: new RedisStore({ client: redisClient, ttl: 60 * 60 }), // 1 hour TTL
-    secret: process.env.SESSION_SECRET,
+    secret: config.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
