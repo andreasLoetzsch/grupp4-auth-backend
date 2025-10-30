@@ -60,6 +60,7 @@ const loginUser = async (req, res) => {
         if (!user) return res.status(404).json({ success: false, message: "User not found" })
         const passwordCheck = await user.checkPassword(password)
         if (!passwordCheck) return res.status(404).json({ success: false, message: "Invalid credentials" })
+        
         const accessToken = await jwt.sign(
             {
                 userId: user.id,
@@ -96,14 +97,14 @@ const loginUser = async (req, res) => {
             req.session.regenerate(err => (err ? reject(err) : resolve()));
         });
 
-        req.session.userId = user._id;
+        req.session.user = accessToken;
 
         // Optionally persist before responding (usually not required, but safe)
         await new Promise((resolve, reject) => {
             req.session.save(err => (err ? reject(err) : resolve()));
         });
 
-        return res.status(200).json({ success: true, message: "successfully logged in", data: { id: user.id, csrfToken: csrfToken } })
+        return res.status(200).json({ success: true, message: "successfully logged in", data: { user: {id: user.id, username: user.username, email: user.email, phoneNumber: user.phoneNumber}, csrfToken: csrfToken } })
     } catch (err) {
         console.error(err.message)
         return res.status(500).json({ success: false, message: "Server error" })
@@ -216,20 +217,18 @@ const deleteUser = async (req, res) => {
 }
 
 const verifyUser = async (req, res) => {
-    const user = User.findById(req.session.userId);
-    
-    if(!user) {
-        return res.status(401).json({ success: true, message: "User invalid." });
+    try {
+        const decodedUser = jwt.decode(req.session.user);
+        
+        return res.status(200).json({ 
+            success: true, 
+            message: "User is authenticated.", 
+            user: decodedUser
+        });
+    } catch(e) {
+        console.error(e);
+        return res.status(500).json({ success: false, message: "Server Error." });
     }
-
-    return res.status(200).json({ 
-        success: true, 
-        message: "User is authenticated.", 
-        user: {
-            id: user._id,
-            username: user.username
-        } 
-    });
 }
 
 module.exports = { registerUser, loginUser, logoutUser, updateUser, deleteUser, verifyUser };
