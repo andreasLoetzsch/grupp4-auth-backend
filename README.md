@@ -1,36 +1,48 @@
-# grupp4-auth-backend
+# Grupp4 Auth Backend
 
 ## Beskrivning
-Det här en backend för autentisering i ett projekt i kursen "Webbsäkerhet: analys och implementation".
+
+Detta är backend-delen för autentisering i ett projekt inom kursen
+**"Webbsäkerhet: Analys och implementation"**.
+
+---
 
 ## Starta projektet lokalt
 
-### Initiera projektet
+### 1. Klona projektet
 
-1. Klona ner projektet.
+Kör följande kommando i terminalen:
 
-Skriv i terminalen t.ex:
 ```bash
 git clone https://github.com/hampusvh/FWK24S-WAI-Projektarbete-Frontend.git
 ```
 
-2. Ladda ner beroenden:
+### 2. Installera beroenden
+
 ```bash
 npm install
 ```
 
-3. Skapa `.env`:
-```
+### 3. Skapa miljöfil (.env)
+
+Skapa en `.env`-fil i projektets rotkatalog och fyll i relevanta värden:
+
+```bash
 PORT=3001
 NODE_ENV="development"
-DB_CONNECTION_STRING="mongodb+srv://<användarnamn>:<lösenord>@cluster.mongodb.net/databasnamn"
-ACCESS_TOKEN_SECRET=<valfritt hemligt värde för access-token>
-REFRESH_TOKEN_SECRET=<valfritt hemligt värde för refresh-token>
-SECRET_RECAPTCHA_SERVER_KEY= server key
-REDIS_URL=redis://127.0.0.1:6379
+DB_CONNECTION_STRING="mongodb+srv://<användarnamn>:<lösenord>@cluster.mongodb.net/<databasnamn>"
+ACCESS_TOKEN_SECRET="<hemligt värde för access-token>"
+REFRESH_TOKEN_SECRET="<hemligt värde för refresh-token>"
+SECRET_RECAPTCHA_SERVER_KEY="<server key>"
+REDIS_URL="redis://127.0.0.1:6379"
 REDIS_TLS=false
 REDIS_TTL_MINUTES=15
 ```
+
+> **Tips:** Anpassa port och anslutningssträngar efter din lokala
+> miljö.
+
+---
 
 ## Starta Storybook
 
@@ -38,16 +50,20 @@ REDIS_TTL_MINUTES=15
 npm run storybook
 ```
 
-## Starta Swagger API docs
+---
 
-1. Starta servern (development mode):
+## Starta Swagger API-dokumentation
+
+### 1. Starta servern (utvecklingsläge)
 
 ```bash
 npm run dev
 ```
 
-3. Öppna API dokumentation i din browser (server default port är 3001):
+### 2. Öppna API-dokumentationen
 
-http://localhost:3001/api-docs
+När servern körs kan du öppna Swagger-dokumentationen i din webbläsare:\
+<http://localhost:3001/api-docs>
 
-OBS: Om din server använder en annan port, ändra portnummer i URL:en.
+> **Observera:** Om servern körs på en annan port -- uppdatera
+> portnumret i URL:en.
