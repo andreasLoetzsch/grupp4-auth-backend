@@ -189,6 +189,36 @@ const updateUser = async (req, res) => {
     }
 };
 
+const editProfile = async (req, res) => {
+try {
+    const {email, phoneNumber} = req.body;
+    if (!email || !phoneNumber) {
+        return res.status(400).json({ success: false, message: "Fields can not be empty" });
+    }
+            if (!(/^(?:\+46|0)\s*(?:7\d{8}|[1-9]\d{5,8})$/.test(phoneNumber))) {
+            return res.status(400).json({ success: false, message: "Invalid phone number format." });
+        }
+
+        if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+            return res.status(400).json({ success: false, message: "Invalid email format." });
+        }
+    const decodedUser = jwt.decode(req.session.user);
+
+const userId = decodedUser.userId 
+
+        const user = await User.findByIdAndUpdate(userId, { $set: {email:email, phoneNumber:phoneNumber}});
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        return res.status(200).json({ success: true, message: "User updated" });
+
+} catch (err) {
+    return res.status(500).json({ success: false, message: "Server error" });
+}
+}
+
 const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id;
@@ -231,4 +261,4 @@ const verifyUser = async (req, res) => {
     }
 }
 
-module.exports = { registerUser, loginUser, logoutUser, updateUser, deleteUser, verifyUser };
+module.exports = { registerUser, loginUser, logoutUser, updateUser, editProfile, deleteUser, verifyUser };
