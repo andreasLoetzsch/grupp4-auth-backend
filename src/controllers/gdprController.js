@@ -54,6 +54,7 @@ const getTransparency = (req, res) => {
     dataCategories: [
       {
         type: "Necessary Cookies",
+        code: "necessary",
         reason: "Used for essential functions such as session management (sid), CSRF protection against attacks, and tracking your cookie consent preferences (consent UUID).",
         duration: "Session cookie (sid): 1 hour, CSRF token: 7 days, Consent UUID: 1 year",
         legal: "Legitimate Interest (Art. 6(1)(f) GDPR)",
@@ -61,6 +62,7 @@ const getTransparency = (req, res) => {
       },
       {
         type: "Functional Cookies",
+        code: "functional",
         reason: "Used to keep you securely logged in through access and refresh tokens.",
         duration: "Access token: 1 hour, Refresh token: 7 days",
         legal: "Consent (Art. 6(1)(a) GDPR)",
