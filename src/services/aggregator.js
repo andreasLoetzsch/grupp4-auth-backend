@@ -8,7 +8,7 @@ const aggregateUserData = async (userId) => {
 
   //Förenkling. Ändra sedan...
 
-  results["profile"] = user;
+  results["profile"] = user.toObject();
   } catch (error) {
     results["profile"] = { error: error };
   }
