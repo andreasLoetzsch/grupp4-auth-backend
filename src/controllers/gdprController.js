@@ -44,10 +44,29 @@ const storeConsent = async (req, res) => {
 
 const getTransparency = (req, res) => {
   return res.status(200).json({
-    description: "This page shows what kind of data our app uses.",
-    dataCategories: ["User account (email and phone number)"],
-    purposes: ["Account management"],
-    retention: { userData: "Kept until the user deletes their account" }
+    version: "1.0.0",
+    lastUpdated: "2025-11-05",
+    controller: {
+      name: "Example AB",
+      contact: "privacy@example.com"
+    },
+    summary: "This website uses essential cookies for security and session management, and functional cookies to keep you logged in. Essential cookies cannot be disabled. You can accept all cookies or customize your preferences below.",
+    dataCategories: [
+      {
+        type: "Necessary Cookies",
+        reason: "Used for essential functions such as session management (sid), CSRF protection against attacks, and tracking your cookie consent preferences (consent UUID).",
+        duration: "Session cookie (sid): 1 hour, CSRF token: 7 days, Consent UUID: 1 year",
+        legal: "Legitimate Interest (Art. 6(1)(f) GDPR)",
+        cookies: ["sid", "csrfToken", "consent_UUID"]
+      },
+      {
+        type: "Functional Cookies",
+        reason: "Used to keep you securely logged in through access and refresh tokens.",
+        duration: "Access token: 1 hour, Refresh token: 7 days",
+        legal: "Consent (Art. 6(1)(a) GDPR)",
+        cookies: ["accessToken", "refreshToken"]
+      }
+    ]
   });
 };
 
