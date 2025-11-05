@@ -8,6 +8,7 @@ const swaggerSpec = require('./config/swagger');
 const bodyParser = require('body-parser');
 const csrfProtection = require('./middleware/csrf');
 const config = require('./config.js');
+const meRouter = require("./routes/meRoutes.js");
 
 const session = require('express-session');
 const { RedisStore } = require('connect-redis'); // ← named export in v9
@@ -94,6 +95,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/auth', authRouter)
+app.use('/me', meRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
