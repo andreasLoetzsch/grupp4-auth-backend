@@ -39,6 +39,16 @@ const storeConsent = async (req, res) => {
             return res.status(500).json({ message: "Internal server error" });
         }
     }
+
 };
 
-module.exports = { storeConsent };
+const getTransparency = (req, res) => {
+  return res.status(200).json({
+    description: "This page shows what kind of data our app uses.",
+    dataCategories: ["User account (email and phone number)"],
+    purposes: ["Account management"],
+    retention: { userData: "Kept until the user deletes their account" }
+  });
+};
+
+module.exports = { storeConsent, getTransparency };
