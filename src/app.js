@@ -9,10 +9,12 @@ const bodyParser = require('body-parser');
 const csrfProtection = require('./middleware/csrf');
 const config = require('./config.js');
 const meRouter = require("./routes/meRoutes.js");
+const gdprRouter = require("./routes/gdprRouter.js");
 
 const session = require('express-session');
 const { RedisStore } = require('connect-redis'); // ← named export in v9
 const { createClient } = require('redis');
+const consentUUID = require('./middleware/consentUUID.js');
 
 
 const app = express()
@@ -82,6 +84,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(consentUUID);
+
 app.use((req, res, next) => {
   const prev = res.getHeader('Access-Control-Allow-Headers');
   const base = prev ? String(prev) : 'Content-Type';
@@ -96,6 +100,7 @@ app.use((req, res, next) => {
 
 app.use('/auth', authRouter)
 app.use('/me', meRouter);
+app.use('/gdpr', gdprRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
