@@ -6,7 +6,7 @@ module.exports = async function csrfProtection(req, res, next) {
     const method = req.method.toUpperCase();
     const path = req.path;
 
-    if(method != "POST" || (method == "POST" && (path == "/auth/login" || path == "/auth/register"))) {
+    if(method != "POST" || (method == "POST" && (path == "/auth/login" || path == "/auth/register" || path == "/gdpr/consent/store"))) {
         return next();
     }
 

@@ -28,7 +28,7 @@ const consentSchema = new Schema({
         marketing: { type: Boolean, default: false },
         personalization: { type: Boolean, default: false }
     },
-    policyVersion: { type: String, index: true, required: true }
+    version: { type: String, index: true, required: true }
 }, { strict: "throw", timestamps: { createdAt: true, updatedAt: false } });
 
 module.exports = mongoose.model('Consent', consentSchema)

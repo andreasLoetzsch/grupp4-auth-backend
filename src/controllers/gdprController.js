@@ -4,18 +4,18 @@ const KNOWN_CATEGORIES = ["necessary", "functional", "analytics", "marketing", "
 
 const storeConsent = async (req, res) => {
     try {
-        const { consentBody } = req.body;
+        const { consent } = req.body;
         const consentUUID = req.consentUUID;
 
-        if(!consentBody) {
-            return res.status(400).json({ message: "Missing consentBody in request body" });
+        if(!consent) {
+            return res.status(400).json({ message: "Missing consent in request body" });
         }
 
         if(!consentUUID) {
             return res.status(400).json({ message: "Missing consent UUID" });
         }
 
-        const rawCats = consentBody.categories || {};
+        const rawCats = consent.categories || {};
         const categories = {};
         for (const key of KNOWN_CATEGORIES) {
             if (key in rawCats) categories[key] = !!rawCats[key];
@@ -23,9 +23,9 @@ const storeConsent = async (req, res) => {
 
         const consentDoc = new Consent({
             uuid: consentUUID,
-            status: consentBody.status,
+            status: consent.status,
             categories,
-            policyVersion: consentBody.policyVersion
+            version: consent.version
         });
 
         const saved = await consentDoc.save();
