@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const { isValidObjectId } = require('mongoose')
 const config = require('../config');
+const { clearCookies } = require('../services/clearCookies');
 
 // ------------------------------------------------------------------------------
 const crypto = require('crypto');
@@ -113,36 +114,7 @@ const loginUser = async (req, res) => {
 
 const logoutUser = async (req, res) => {
     try {
-        const common = { path: '/', secure: config.SECURE, sameSite: config.SAME_SITE };
-
-        res.clearCookie('refreshToken', { ...common, httpOnly: true });
-        res.clearCookie('accessToken', { ...common, httpOnly: true });
-        res.clearCookie('csrfToken', { ...common });
-
-        if (!req.session) {
-            res.clearCookie('sid', {
-                httpOnly: true,
-                sameSite: 'lax',
-                secure: process.env.NODE_ENV === 'production',
-                path: '/', // match your cookie path
-            });
-
-            return res.json({ ok: true });
-        }
-
-        // Destroy session
-        await new Promise((resolve, reject) => {
-            req.session.destroy(err => (err ? reject(err) : resolve()));
-        });
-
-        // Clear cookie AFTER destroy
-        res.clearCookie('sid', {
-            httpOnly: true,
-            sameSite: 'lax',
-            secure: process.env.NODE_ENV === 'production',
-            path: '/', // must match how it was set
-        });
-
+        await clearCookies(req, res)
         return res.status(200).json({ success: true, message: "User logged out" });
     } catch (err) {
         console.error(err.message);
@@ -222,9 +194,8 @@ const userId = decodedUser.userId
 const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id;
-        const requesterId = req.user.id;
-        const isAdmin = req.user.role === 'admin';
-
+        const requesterId = req.session.user.id;
+        const isAdmin = req.session.user.role === 'admin';
         if (!userId) {
             return res.status(400).json({ success: false, message: "No user ID present in query parameters." });
         }
@@ -238,6 +209,8 @@ const deleteUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, message: "Provided user ID does not exist." });
         }
+
+         await clearCookies(req, res)
 
         return res.status(200).json({ success: true, message: "User was deleted successfully." });
     } catch (error) {
