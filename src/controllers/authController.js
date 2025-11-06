@@ -7,7 +7,7 @@ const { clearCookies } = require('../services/clearCookies');
 
 // ------------------------------------------------------------------------------
 const crypto = require('crypto');
-const { createCsrf } = require('../csrf');
+const { createCsrf, deleteCsrf } = require('../csrf');
 // ------------------------------------------------------------------------------
 
 const registerUser = async (req, res) => {
@@ -115,6 +115,7 @@ const loginUser = async (req, res) => {
 const logoutUser = async (req, res) => {
     try {
         await clearCookies(req, res)
+        await deleteCsrf(req)
         return res.status(200).json({ success: true, message: "User logged out" });
     } catch (err) {
         console.error(err.message);
@@ -210,7 +211,8 @@ const deleteUser = async (req, res) => {
             return res.status(404).json({ success: false, message: "Provided user ID does not exist." });
         }
 
-         await clearCookies(req, res)
+        await clearCookies(req, res)
+        await deleteCsrf(req)
 
         return res.status(200).json({ success: true, message: "User was deleted successfully." });
     } catch (error) {
