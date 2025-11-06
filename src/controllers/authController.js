@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs')
 const { isValidObjectId } = require('mongoose')
 const config = require('../config');
 const { clearCookies } = require('../services/cookieService');
+const {createAccessToken, createRefreshToken} = require('../utils/tokenUtils')
 
 // ------------------------------------------------------------------------------
 const crypto = require('crypto');
@@ -62,22 +63,9 @@ const loginUser = async (req, res) => {
         const passwordCheck = await user.checkPassword(password)
         if (!passwordCheck) return res.status(404).json({ success: false, message: "Invalid credentials" })
         
-        const accessToken = await jwt.sign(
-            {
-                userId: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role
-            },
-            config.ACCESS_TOKEN_SECRET,
-            { expiresIn: "1h" }
-        )
-        const refreshToken = await jwt.sign(
-            {
-                userId: user.id,
-            }, config.REFRESH_TOKEN_SECRET,
-            { expiresIn: "7d" }
-        )
+        const accessToken = await createAccessToken(user)
+        const refreshToken = await createRefreshToken(user.id)
+        
         res.cookie('accessToken', accessToken, {
             httpOnly: config.HTTP_ONLY,
             secure: config.SECURE,

@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const { createCsrf } = require('../csrf.js');
 
 const verifyAuth = require("../middleware/verifyAuth.js");
+const { createAccessToken, createRefreshToken } = require('../utils/tokenUtils.js');
 
 function csrfCookieOptions() {
     return {
@@ -44,23 +45,8 @@ router.get('/csrf/refresh', async (req, res) => {
       return res.status(401).json({ error: "Refresh token invalid or expired." });
     }
 
-    const newAccessToken = await jwt.sign(
-        {
-            userId: payload.userId,
-            username: payload.username,
-            email: payload.email,
-            role: payload.role
-        },
-        config.ACCESS_TOKEN_SECRET,
-        { expiresIn: "1h" }
-    );
-
-    const newRefreshToken = await jwt.sign(
-        {
-            userId: payload.id,
-        }, config.REFRESH_TOKEN_SECRET,
-        { expiresIn: "7d" }
-    );
+    const newAccessToken = await createAccessToken(payload)
+    const newRefreshToken = await createRefreshToken(payload.id)
 
     res.cookie('accessToken', newAccessToken, {
         httpOnly: config.HTTP_ONLY,
@@ -88,10 +74,10 @@ router.get('/csrf/refresh', async (req, res) => {
 
 router.post('/register', recaptchaCheck, registerUser);
 router.post('/login', recaptchaCheck, loginUser);
-router.post('/logout', logoutUser);
+router.post('/logout', [verifyAuth],logoutUser);
 router.patch('/user', [verifyAuth], editProfile);
-router.patch('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.patch('/:id', [verifyAuth], updateUser);
+router.delete('/:id', [verifyAuth] ,deleteUser);
 router.get('/verify', verifyUser);
 
 module.exports = router;
