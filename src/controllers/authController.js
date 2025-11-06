@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const { isValidObjectId } = require('mongoose')
 const config = require('../config');
-const { clearCookies } = require('../services/clearCookies');
+const { clearCookies } = require('../services/cookieService');
 
 // ------------------------------------------------------------------------------
 const crypto = require('crypto');
@@ -115,7 +115,6 @@ const loginUser = async (req, res) => {
 const logoutUser = async (req, res) => {
     try {
         await clearCookies(req, res)
-        await deleteCsrf(req)
         return res.status(200).json({ success: true, message: "User logged out" });
     } catch (err) {
         console.error(err.message);
@@ -212,7 +211,6 @@ const deleteUser = async (req, res) => {
         }
 
         await clearCookies(req, res)
-        await deleteCsrf(req)
 
         return res.status(200).json({ success: true, message: "User was deleted successfully." });
     } catch (error) {
