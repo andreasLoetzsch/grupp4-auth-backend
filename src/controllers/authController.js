@@ -5,10 +5,12 @@ const { isValidObjectId } = require('mongoose')
 const config = require('../config');
 const { clearCookies } = require('../services/cookieService');
 const {createAccessToken, createRefreshToken} = require('../utils/tokenUtils')
+const Journal = require("../models/journalModel.js");
 
 // ------------------------------------------------------------------------------
 const crypto = require('crypto');
 const { createCsrf, deleteCsrf } = require('../csrf');
+const { todayISODate } = require('../utils/dates');
 // ------------------------------------------------------------------------------
 
 const registerUser = async (req, res) => {
@@ -44,6 +46,17 @@ const registerUser = async (req, res) => {
             phoneNumber: phoneNumber
         })
         await user.save()
+
+        // create journal
+        const journalDoc = await new Journal({
+            title: "My first journal",
+            content: "This is my first journal entry.",
+            author: user._id,
+            date: todayISODate()
+        });
+
+        await journalDoc.save();
+
         return res.status(200).json({ success: true, message: "User successfully created" })
     } catch (err) {
         console.error(err.message);
