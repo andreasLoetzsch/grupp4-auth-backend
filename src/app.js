@@ -10,6 +10,7 @@ const csrfProtection = require('./middleware/csrf');
 const config = require('./config.js');
 const meRouter = require("./routes/meRoutes.js");
 const gdprRouter = require("./routes/gdprRouter.js");
+const journalRouter = require("./routes/journalRouter.js");
 
 const session = require('express-session');
 const { RedisStore } = require('connect-redis'); // ← named export in v9
@@ -101,6 +102,7 @@ app.use((req, res, next) => {
 app.use('/auth', authRouter)
 app.use('/me', meRouter);
 app.use('/gdpr', gdprRouter);
+app.use('/journal', journalRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
