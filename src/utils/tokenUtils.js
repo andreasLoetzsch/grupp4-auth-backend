@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken')
 const config = require('../config')
 
 async function createAccessToken (user) {
-    console.log('hej')
     const accessToken = await jwt.sign(
         {
             userId: user.id,
@@ -13,6 +12,7 @@ async function createAccessToken (user) {
         config.ACCESS_TOKEN_SECRET,
         {expiresIn: '1h'}
     )
+
     return accessToken
 }
 

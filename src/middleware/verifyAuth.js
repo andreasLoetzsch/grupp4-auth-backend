@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const {createAccessToken} = require('../utils/tokenUtils')
+const config = require("../config.js");
 
 module.exports = async function verifyAuth(req, res, next) {
     if (!req.session?.user) {
@@ -32,8 +33,8 @@ module.exports = async function verifyAuth(req, res, next) {
 
         res.cookie("accessToken", newAccessToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: "strict",
+            secure: config.SECURE,
+            sameSite: config.SAME_SITE,
             maxAge: 15 * 60 * 1000,
         });
 

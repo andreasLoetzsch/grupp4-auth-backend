@@ -14,7 +14,7 @@ function csrfCookieOptions() {
     return {
         httpOnly: config.HTTP_ONLY,
         secure: config.SECURE,
-        sameSite: "lax",
+        sameSite: config.SAME_SITE,
         path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     };
@@ -24,7 +24,7 @@ router.get('/csrf', (req, res) => {
   let token = req.cookies?.csrfToken;
 
   if (!token) {
-    token = createCsrf(); // your existing generator function
+    token = createCsrf(req); // your existing generator function
     res.cookie('csrfToken', token, csrfCookieOptions());
   }
 
