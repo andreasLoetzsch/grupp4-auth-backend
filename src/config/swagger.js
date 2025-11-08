@@ -128,7 +128,44 @@ spec.paths = {
         '500': { description: 'Server error' }
       }
     }
-  }
+  },
+  '/export/json': {
+    get: {
+      tags: ['Export'],
+      summary: 'Export user data in JSON format',
+      description: 'Allows authenticated users to export their data as a JSON file.',
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
+      responses: {
+        '200': {
+          description: 'JSON data exported successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  manifest: {
+                    type: 'object',
+                    description: 'Metadata about the export',
+                  },
+                  data: {
+                    type: 'object',
+                    description: 'User data',
+                  },
+                },
+              },
+            },
+          },
+        },
+        '401': {description: 'Unauthorized - Missing or invalid token'},
+        '403': {description: 'Validation error'},
+        '500': {description: 'Internal server error'},
+      },
+    },
+  },
 }
 
 module.exports = spec
