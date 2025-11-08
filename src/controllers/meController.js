@@ -81,4 +81,38 @@ const exportUserDataPdf = async (req, res) => {
   }
 };
 
-module.exports = { exportUserDataZip, exportUserDataPdf };
+const exportUserDataJson = async (req, res) => {
+  try {
+    const decodedUser = jwt.decode(req.session.user);
+    const { userId } = decodedUser;
+    const reauthenticated = await requireReauth(req, userId);
+    if (!reauthenticated) return res.status(403).json({ error: "Re-auth required" });
+    
+    const dataBundle = await aggregateUserData(userId);
+
+    const manifest = {
+      generatedAt: new Date().toISOString(),
+      userId,
+      legal: { reference: "GDPR Article 15" },
+    };
+
+    const responseData = {
+      manifest,
+      data: dataBundle,
+    };
+
+    res
+      .set({
+        "Content-Type": "application/json",
+        "Content-Disposition": `attachment; filename="user-${userId}-data.json"`,
+      })
+      .status(200)
+      .json(responseData);
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ success: false, message: "Server error." });
+    }
+};
+
+module.exports = { exportUserDataZip, exportUserDataPdf, exportUserDataJson };
