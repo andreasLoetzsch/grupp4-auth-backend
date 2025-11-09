@@ -5,12 +5,16 @@ const PDFDocument = require("pdfkit");
 const { aggregateUserData } = require("../services/aggregator");
 const { generateUserPdf } = require("../utils/generateUserPdf");
 
+const { logEvent } = require('../services/auditLogService');
+
 const exportUserDataZip = async (req, res) => {
   try {
     const decodedUser = jwt.decode(req.session.user);
     const { userId } = decodedUser;
     const reauthenticated = await requireReauth(req, userId);
     if (!reauthenticated) return res.status(403).json({ error: "Re-auth required" });
+
+    await logEvent(userId, 'DATA_REQUEST', { format: 'ZIP' });
 
     // const auditId = await createAudit({ userId, action: "EXPORT_REQUEST" });
     const auditId = 0;
@@ -30,6 +34,8 @@ const exportUserDataZip = async (req, res) => {
     }
 
     const buffer = zip.toBuffer();
+
+    await logEvent(userId, 'DATA_EXPORT', { format: 'ZIP' });
 
     // await createAudit({ userId, action: "EXPORT_CREATED", meta: { auditId }});
 
@@ -54,6 +60,8 @@ const exportUserDataPdf = async (req, res) => {
     const reauthenticated = await requireReauth(req, userId);
     if (!reauthenticated) return res.status(403).json({ error: "Re-auth required" });
 
+    await logEvent(userId, 'DATA_REQUEST', { format: 'PDF' });
+
     // const auditId = await createAudit({ userId, action: "EXPORT_REQUEST" });
     const dataBundle = await aggregateUserData(userId);
 
@@ -61,6 +69,7 @@ const exportUserDataPdf = async (req, res) => {
 
     // await createAudit({ userId, action: "EXPORT_CREATED", meta: { auditId }});
 
+    await logEvent(userId, 'DATA_EXPORT', { format: 'PDF' });
 
     res
       .set({
@@ -88,6 +97,8 @@ const exportUserDataJson = async (req, res) => {
     const reauthenticated = await requireReauth(req, userId);
     if (!reauthenticated) return res.status(403).json({ error: "Re-auth required" });
     
+    await logEvent(userId, 'DATA_REQUEST', { format: 'JSON' });
+
     const dataBundle = await aggregateUserData(userId);
 
     const manifest = {
@@ -100,6 +111,8 @@ const exportUserDataJson = async (req, res) => {
       manifest,
       data: dataBundle,
     };
+
+    await logEvent(userId, 'DATA_EXPORT', { format: 'JSON' });
 
     res
       .set({

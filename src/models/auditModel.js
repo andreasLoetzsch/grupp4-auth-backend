@@ -10,7 +10,7 @@ const auditLogSchema = new mongoose.Schema({
     event: {
         type: String,
         required: true,
-        enum: ['LOGIN', 'CONSENT_UPDATE', 'DATA_DOWNLOAD', 'ACCOUNT_DELETE'],
+        enum: ['LOGIN', 'CONSENT_UPDATE', 'DATA_REQUEST', 'DATA_EXPORT', 'ACCOUNT_DELETE'],
     },
     timestamp: {
         type: Date,
