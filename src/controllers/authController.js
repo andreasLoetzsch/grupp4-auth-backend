@@ -7,6 +7,8 @@ const { clearCookies } = require('../services/cookieService');
 const {createAccessToken, createRefreshToken} = require('../utils/tokenUtils')
 const Journal = require("../models/journalModel.js");
 
+const { logEvent } = require('../services/auditLogService');
+
 // ------------------------------------------------------------------------------
 const crypto = require('crypto');
 const { createCsrf, deleteCsrf } = require('../csrf');
@@ -105,6 +107,8 @@ const loginUser = async (req, res) => {
         await new Promise((resolve, reject) => {
             req.session.save(err => (err ? reject(err) : resolve()));
         });
+
+        await logEvent(user.id, 'LOGIN');
 
         return res.status(200).json({ success: true, message: "successfully logged in", data: { user: {id: user.id, username: user.username, email: user.email, phoneNumber: user.phoneNumber}, csrfToken: csrfToken } })
     } catch (err) {
@@ -211,7 +215,9 @@ const deleteUser = async (req, res) => {
             return res.status(404).json({ success: false, message: "Provided user ID does not exist." });
         }
 
-        await clearCookies(req, res)
+        await clearCookies(req, res);
+
+        await logEvent(userId, 'ACCOUNT_DELETE');
 
         return res.status(200).json({ success: true, message: "User was deleted successfully." });
     } catch (error) {
