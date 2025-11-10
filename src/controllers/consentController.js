@@ -1,5 +1,6 @@
 const Consent = require("../models/consentModel");
 const { logEvent } = require("../services/auditLogService");
+const mongoose = require("mongoose");
 
 const updateConsent = async (req, res) => {
   try {
@@ -30,6 +31,10 @@ const AuditLog = require("../models/auditModel");
 const getAuditTrail = async (req, res) => {
   try {
     const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ success: false, message: "Invalid user ID." });
+    }
 
     const logs = await AuditLog.find({ userId }).sort({ timestamp: 1 });
 
