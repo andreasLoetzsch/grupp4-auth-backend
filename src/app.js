@@ -60,6 +60,22 @@ if(config.CORS_ENABLED) {
   app.use(cors());
 }
 
+app.use((req, res, next) => {
+  // Force HTTPS for 2 years (only on HTTPS servers!)
+  res.setHeader("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+
+  // Prevent MIME sniffing
+  res.setHeader("X-Content-Type-Options", "nosniff");
+
+  // Hide referrer info
+  res.setHeader("Referrer-Policy", "no-referrer");
+
+  // Prevent clickjacking (API doesn’t need to be framed)
+  res.setHeader("X-Frame-Options", "DENY");
+
+  next();
+});
+
 app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
