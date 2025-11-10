@@ -10,7 +10,7 @@ const DEFAULT_REAUTH_WINDOW_MS = process.env.REAUTH_WINDOW_MS || 5 * 60 * 1000
 let DEFAULT_SECURE = true;
 let DEFAULT_HTTP_ONLY = true;
 let DEFAULT_SAME_SITE = "None";
-let DEFAULT_CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:5173', 'https://localhost:5173', 'http://localhost:6006']
+let DEFAULT_CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'https://localhost:4173', 'http://localhost:5173', 'https://localhost:5173', 'http://localhost:6006']
 let ALLOW_EMPTY_ORIGIN = false;
 let DEFAULT_CORS_ENABLED = true;
 

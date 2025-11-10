@@ -1,29 +1,25 @@
-const express = require('express')
-const authRouter = require('./routes/authRoutes')
-const cookieParser = require("cookie-parser");
-const helmet = require("helmet");
-const cors = require("cors");
-const swaggerUi = require('swagger-ui-express')
-const swaggerSpec = require('./config/swagger');
-const bodyParser = require('body-parser');
-const csrfProtection = require('./middleware/csrf');
-const config = require('./config.js');
-const meRouter = require("./routes/meRoutes.js");
-const gdprRouter = require("./routes/gdprRouter.js");
-const journalRouter = require("./routes/journalRouter.js");
-
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const cors = require('cors');
 const session = require('express-session');
-const { RedisStore } = require('connect-redis'); // ← named export in v9
+const { RedisStore } = require('connect-redis'); // named export in v9
 const { createClient } = require('redis');
-const consentUUID = require('./middleware/consentUUID.js');
 
+// Routers & middleware
+const authRouter = require('./routes/authRoutes');
+const consentUUID = require('./middleware/consentUUID');
+const csrfProtection = require('./middleware/csrf');
 
-const app = express()
+const config = require('./config');
 
-// Create & connect redis v5+ client
+const app = express();
+
+// Create & connect redis client
 const redisClient = createClient({ url: 'redis://localhost:6379' });
 redisClient.connect().catch(console.error);
 
+// Session (uses Redis store)
 app.use(
   session({
     name: 'sid',
@@ -41,68 +37,67 @@ app.use(
   })
 );
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin && config.ALLOW_EMPTY_ORIGIN) {
-      callback(null, true); // tillåt tom origin i dev
-    } else if (origin && config.CORS_ALLOWED_ORIGINS.includes(origin)) {
-      callback(null, true); // tillåt konfigurerade origins
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
+const ALLOWED_ORIGINS = new Set(config.CORS_ALLOWED_ORIGINS || []);
+
+// single source of truth for CORS options delegate
+const corsOptionsDelegate = (req, cb) => {
+  const origin = req.get('Origin');
+  // default: no CORS
+  let options = { origin: false };
+
+  const base = {
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type', 'X-CSRF-Token'],
+    maxAge: 600,
+  };
+
+  if (!origin && config.ALLOW_EMPTY_ORIGIN) {
+    options = { ...base, origin: true };
+  } else if (origin && ALLOWED_ORIGINS.has(origin)) {
+    options = { ...base, origin };
+  }
+
+  cb(null, options);
 };
 
-if(config.CORS_ENABLED) {
-  app.use(cors(corsOptions));
-} else {
-  app.use(cors());
-}
-
+// Security headers (helmet plus a few explicit headers)
+app.use(helmet());
 app.use((req, res, next) => {
-  // Force HTTPS for 2 years (only on HTTPS servers!)
-  res.setHeader("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
-
-  // Prevent MIME sniffing
-  res.setHeader("X-Content-Type-Options", "nosniff");
-
-  // Hide referrer info
-  res.setHeader("Referrer-Policy", "no-referrer");
-
-  // Prevent clickjacking (API doesn’t need to be framed)
-  res.setHeader("X-Frame-Options", "DENY");
-
+  res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('X-Frame-Options', 'DENY');
   next();
 });
 
-app.use(helmet());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(express.json())
+// Body parsing & cookies
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-  const sanitize = (obj) => {
-    if (obj && typeof obj == "object") {
-      for (const key in obj) {
-        if (key.startsWith("$") || key.includes(".")) {
-          delete obj[key];
-        } else {
-          sanitize(obj[key]);
-        }
-      }
+// Simple deep sanitizer to remove keys that could be used for mongo operators
+const sanitizeObject = (obj) => {
+  if (!obj || typeof obj !== 'object') return;
+  for (const key of Object.keys(obj)) {
+    if (key.startsWith('$') || key.includes('.')) {
+      delete obj[key];
+    } else {
+      sanitizeObject(obj[key]);
     }
   }
+};
 
-  sanitize(req.body);
-  sanitize(req.query);
-  sanitize(req.params);
+app.use((req, res, next) => {
+  sanitizeObject(req.body);
+  sanitizeObject(req.query);
+  sanitizeObject(req.params);
   next();
 });
 
 app.use(consentUUID);
 
+// Ensure X-CSRF-Token is allowed in responses and preserve existing headers
 app.use((req, res, next) => {
   const prev = res.getHeader('Access-Control-Allow-Headers');
   const base = prev ? String(prev) : 'Content-Type';
@@ -110,16 +105,26 @@ app.use((req, res, next) => {
   next();
 });
 
+// Auth routes with CORS applied — register these BEFORE CSRF so preflight (OPTIONS)
+// is handled by the CORS middleware rather than being rejected by CSRF checks.
+app.use('/auth', cors(corsOptionsDelegate), authRouter);
+app.options('/auth', cors(corsOptionsDelegate));
+// Match /auth and any subpath — RegExp avoids path-to-regexp parameter parsing issues
+app.options(/^\/auth(\/.*)?$/, cors(corsOptionsDelegate));
+
+// Apply CSRF except for api-docs
 app.use((req, res, next) => {
   if (req.path.startsWith('/api-docs')) return next();
   return csrfProtection(req, res, next);
 });
 
-app.use('/auth', authRouter)
-app.use('/me', meRouter);
-app.use('/gdpr', gdprRouter);
-app.use('/journal', journalRouter);
+// Add Vary: Origin header only when CORS set
+app.use((req, res, next) => {
+  if (res.getHeader('Access-Control-Allow-Origin')) res.setHeader('Vary', 'Origin');
+  next();
+});
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+// Short-circuit OPTIONS
+app.use((req, res, next) => (req.method === 'OPTIONS' ? res.sendStatus(204) : next()));
 
-module.exports = app
+module.exports = app;
