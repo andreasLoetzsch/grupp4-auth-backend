@@ -7,6 +7,7 @@ const { RedisStore } = require('connect-redis'); // named export in v9
 const { createClient } = require('redis');
 
 const consentRouter = require('./routes/consentRoutes');
+const meRouter = require('./routes/meRoutes');
 
 // Routers & middleware
 const authRouter = require('./routes/authRoutes');
@@ -115,6 +116,7 @@ app.options('/auth', cors(corsOptionsDelegate));
 app.options(/^\/auth(\/.*)?$/, cors(corsOptionsDelegate));
 
 app.use('/api/consent', consentRouter);
+app.use('/me', meRouter);
 
 // Apply CSRF except for api-docs
 app.use((req, res, next) => {
