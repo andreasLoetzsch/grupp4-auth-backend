@@ -10,7 +10,7 @@ const clearCookies =  async (req, res) => {
         if (!req.session) {
             res.clearCookie('sid', {
                 httpOnly: true,
-                sameSite: 'lax',
+                sameSite: 'None',
                 secure: process.env.NODE_ENV === 'production',
                 path: '/', 
             });
@@ -24,7 +24,7 @@ const clearCookies =  async (req, res) => {
 
         res.clearCookie('sid', {
             httpOnly: true,
-            sameSite: 'lax',
+            sameSite: 'None',
             secure: process.env.NODE_ENV === 'production',
             path: '/', 
         });

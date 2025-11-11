@@ -6,11 +6,8 @@ const session = require('express-session');
 const { RedisStore } = require('connect-redis'); // named export in v9
 const { createClient } = require('redis');
 
-const consentRouter = require('./routes/consentRoutes');
-
 // Routers & middleware
 const authRouter = require('./routes/authRoutes');
-const consentUUID = require('./middleware/consentUUID');
 const csrfProtection = require('./middleware/csrf');
 
 const config = require('./config');
@@ -33,7 +30,7 @@ app.use(
       maxAge: 1000 * 60 * 60,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'None',
     },
     rolling: true,
   })
@@ -97,8 +94,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(consentUUID);
-
 // Ensure X-CSRF-Token is allowed in responses and preserve existing headers
 app.use((req, res, next) => {
   const prev = res.getHeader('Access-Control-Allow-Headers');
@@ -113,8 +108,6 @@ app.use('/auth', cors(corsOptionsDelegate), authRouter);
 app.options('/auth', cors(corsOptionsDelegate));
 // Match /auth and any subpath — RegExp avoids path-to-regexp parameter parsing issues
 app.options(/^\/auth(\/.*)?$/, cors(corsOptionsDelegate));
-
-app.use('/api/consent', consentRouter);
 
 // Apply CSRF except for api-docs
 app.use((req, res, next) => {
