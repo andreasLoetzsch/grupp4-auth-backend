@@ -74,7 +74,7 @@ const loginUser = async (req, res) => {
         const user = await User.findOne({
             username: { $regex: "^" + username + "$", $options: "i" },
         });
-        if (!user) return res.status(404).json({ success: false, message: "User not found" })
+        if (!user) return res.status(404).json({ success: false, message: "Invalid credentials" })
         const passwordCheck = await user.checkPassword(password)
         if (!passwordCheck) return res.status(404).json({ success: false, message: "Invalid credentials" })
         
